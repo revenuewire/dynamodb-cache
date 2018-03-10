@@ -1,0 +1,25 @@
+{
+  "name": "revenuewire/dynamodb-cache",
+  "type": "library",
+  "description": "RW Dynamo Cache",
+  "homepage": "https://github.com/revenuewire/dynamodb-cache",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Scott Wang",
+      "email": "swang@revenuewire.com"
+    }
+  ],
+  "require": {
+    "aws/aws-sdk-php": "^3.52"
+  },
+  "autoload": {
+    "psr-4": {
+      "RW\\": "src/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.2",
+    "php-coveralls/php-coveralls": "^1.0"
+  }
+}
