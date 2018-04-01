@@ -9,6 +9,8 @@ services:
       context: ./
     links:
         - dynamodb:dynamodb
+    env_file:
+      - .env
     volumes:
         - $PWD:/code
     working_dir: /code
