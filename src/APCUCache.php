@@ -7,12 +7,9 @@ use Psr\SimpleCache\CacheInterface;
  * Class MemCache
  * @package RW
  */
-class MemCache implements CacheInterface
+class APCUCache implements CacheInterface
 {
     use SimpleCache;
-
-    private $data = [];
-
 
     /**
      * Fetches a value from the cache.
@@ -30,16 +27,13 @@ class MemCache implements CacheInterface
         if (!$this->isValidKey($key)) {
             throw new SimpleCacheException("Invalid key. Only [a-zA-Z0-9_-] allowed.");
         }
-        
-        $now = time();
 
-        if (isset($this->data[$key]) && isset($this->data[$key]['expiry']) && ($this->data[$key]['expiry'] === 0 || $this->data[$key]['expiry'] >= $now)) {
-            return $this->data[$key]['value'];
-        } else if (isset($this->data[$key]) && isset($this->data[$key]['expiry']) && ($this->data[$key]['expiry'] < $now)) {
-            unset($this->data[$key]);
+        $value = apcu_fetch($key, $success);
+        if($success === false) {
+            return $default;
         }
 
-        return $default;
+        return $value;
     }
 
     /**
@@ -66,14 +60,11 @@ class MemCache implements CacheInterface
             throw new SimpleCacheException("TTL must only be integer greater than 0 or null.");
         }
 
-        $this->data[$key]['value'] = $value;
         if ($ttl <= 0) {
-            $this->data[$key]['expiry'] = 0;
-        } else {
-            $this->data[$key]['expiry'] = time() + $ttl;
+            $ttl = 0;
         }
 
-        return true;
+        return apcu_store($key, $value, $ttl);
     }
 
     /**
@@ -91,8 +82,8 @@ class MemCache implements CacheInterface
         if (!$this->isValidKey($key)) {
             throw new SimpleCacheException("Invalid key. Only [a-zA-Z0-9_-] allowed.");
         }
-        unset($this->data[$key]);
-        return true;
+
+        return apcu_delete($key);
     }
 
     /**
@@ -102,8 +93,7 @@ class MemCache implements CacheInterface
      */
     public function clear()
     {
-        $this->data = [];
-        return true;
+        return apcu_clear_cache();
     }
 
     /**
@@ -127,9 +117,7 @@ class MemCache implements CacheInterface
             throw new SimpleCacheException("Invalid key. Only [a-zA-Z0-9_-] allowed.");
         }
 
-        $now = time();
-        return (isset($this->data[$key])
-                    && isset($this->data[$key]['expiry'])
-                        && ($this->data[$key]['expiry'] === 0 || $this->data[$key]['expiry'] >= $now));
+
+        return apcu_exists($key);
     }
 }

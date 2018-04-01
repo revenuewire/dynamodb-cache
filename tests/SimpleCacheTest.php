@@ -6,14 +6,8 @@
  * Time: 8:22 PM
  */
 
-class MemCacheTest extends \PHPUnit\Framework\TestCase
+trait SimpleCacheTest
 {
-    public $cache = null;
-    public function setUp()
-    {
-       $this->cache = new \RW\MemCache();
-    }
-
     public function cacheSetProvider()
     {
         return [
@@ -22,6 +16,7 @@ class MemCacheTest extends \PHPUnit\Framework\TestCase
             ["key_1", "value3", true],
             ["key-1", "value4", true],
             ["123", "value5", true],
+            ["key1", "value6", true],
         ];
     }
 
@@ -193,5 +188,28 @@ class MemCacheTest extends \PHPUnit\Framework\TestCase
     public function tearDown()
     {
         $this->assertSame(true, $this->cache->clear());
+    }
+}
+
+class MemCacheTest extends \PHPUnit\Framework\TestCase
+{
+    use SimpleCacheTest;
+    public $cache = null;
+
+    public function setUp()
+    {
+        $this->cache = new \RW\MemCache();
+    }
+}
+
+class APCUTest extends \PHPUnit\Framework\TestCase
+{
+    use SimpleCacheTest;
+    public $cache = null;
+
+    public function setUp()
+    {
+        $this->cache = new \RW\APCUCache();
+        $this->assertSame(true, function_exists('apcu_store'));
     }
 }
